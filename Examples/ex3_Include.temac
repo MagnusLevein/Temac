@@ -1,0 +1,24 @@
+﻿<:i.=>
+<:>Above: make sure variable 'i' exists, but don't change it
+<:>Below: increase 'i' with one; first time initialize to 1
+<:i++>
+<:if i==1 >
+<!DOCTYPE html>
+<html>
+<head><title>Recursive frame</title></head>
+<body>
+<:include $FileIn>
+</body>
+</html>
+<:else>
+  <:if i<9 >
+    <div style="border:1px solid blue; padding: 5px;">
+      <:include $FileIn>
+    </div>
+  <:else>
+    <p>The source code (<:=$FileIn>) for this is:</p>
+    <pre>
+      <:include-text2html $FileIn>
+    </pre>
+  <.if>
+<.if>

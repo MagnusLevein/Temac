@@ -1,0 +1,12 @@
+﻿<:HtmlTag:>
+  <<:=$1>><:=$2></<:=$1>>
+<.>
+<:greeting=>Hello, again!<:>Another "hello"
+<!DOCTYPE html>
+<html>
+<head><title><:=greeting></title></head>
+<body>
+  <:=HtmlTag "h1" greeting>
+  <:=HtmlTag "p" greeting>
+</body>
+</html>

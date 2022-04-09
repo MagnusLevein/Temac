@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html>
+<head><title>Iterative frame</title></head>
+<body>
+<:i=>1
+<:while i<=7 >
+  <div style="border:1px solid magenta; padding: 5px;">
+  <:i++>
+<.while>
+<p>The source code (<:=$FileIn>) for this is:</p>
+  <pre>
+    <:include-text2html $FileIn>
+  </pre>
+<:while i>1 >
+  </div>
+  <:i-->
+<.while>
+</body>
+</html>

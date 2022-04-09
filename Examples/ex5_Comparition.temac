@@ -1,0 +1,30 @@
+﻿<:> This example shows that ’if’ comparitions are numeric whenever possible,
+<:> but ’switch/case’ matching always are string comparitions.
+<:compare:>
+  <p>
+  <:=$1> == <:=$2>
+  <:if $1==$2>
+      is true
+  <:else>
+      <mark>is false</mark>
+  <.if>
+  <br>
+  switch <:=$1>
+  <:switch $1>
+    <:case $2>
+      matches case <:=$2>
+    <:default>
+      <mark>does not match case <:=$2></mark>
+  <.switch>
+  </p>
+<.>
+<!DOCTYPE html>
+<html>
+<head><title>Comparition</title></head>
+<body>
+  <:=compare 5 5>
+  <:=compare 5 "5">
+  <:=compare 5 "05">
+  <:=compare 05 "05">
+</body>
+</html>

@@ -1,0 +1,21 @@
+﻿<:months:>
+January
+February
+March
+April
+May
+June
+July
+August
+September
+October
+November
+December
+<.>
+<!DOCTYPE html>
+<html>
+<head><title>Count and read lines</title></head>
+<body>
+There are <:count months> different months, and when this file was compiled, it was <:=months[$MM]>.
+</body>
+</html>

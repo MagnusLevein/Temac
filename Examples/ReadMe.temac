@@ -1,0 +1,39 @@
+﻿<:>
+<:>  Example scripts for Temac - Text manuscript compiler
+<:>
+<:>
+<:>  Each example could be compiled manually with  
+<:>
+<:>    temac ex1_Hello.temac
+<:>    temac ex2_Macro.temac
+<:>     . . .
+<:>
+<:>  or, you can compile all of them at once by sending
+<:>  this script to the compiler, like this:
+<:>  
+<:>    temac ReadMe.temac
+<:>
+<:>  (There will be no 'readme.html', as all output
+<:>  from this files goes to other files.)
+<:>
+<:>  
+<:>  Please also check out the different command line
+<:>  parameters that are available, as most of them
+<:>  are intended for trouble-shooting:
+<:>
+<:>    temac -help
+<:>
+<:>
+<:>  Good luck!
+<:>
+<:>
+<:files=><:getfiles "ex*.temac">
+<:numfiles=><:count files>
+<:i=>1
+<:while i <= numfiles>
+  <:currentFile=><:=files[i]>
+  <:sandbox currentFile>
+    <:output $FileOut><:include $FileIn><.>
+  <.>
+  <:i++>
+<.while>

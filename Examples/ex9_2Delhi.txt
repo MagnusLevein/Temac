@@ -1,0 +1,27 @@
+﻿
+
+[Name]
+Delhi
+
+
+[Article]
+# Text from Wikipedia, https://en.wikipedia.org/wiki/Delhi
+Delhi, officially the National Capital Territory (NCT) of Delhi,
+is a city and a union territory of India containing New Delhi,
+the capital of India. Straddling the Yamuna river, primarily its
+western or right bank, Delhi shares borders with the state of Uttar
+Pradesh in the east and with the state of Haryana in the remaining
+directions. The NCT covers an area of 1,484 km².
+
+
+[Country]
+India
+
+
+[Population]
+28.5
+
+
+[Wikipedia]
+https://en.wikipedia.org/wiki/Delhi
+

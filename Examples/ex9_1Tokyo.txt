@@ -1,0 +1,21 @@
+﻿[Name]
+Tokyo
+
+[Country]
+Japan
+
+[Population]
+37.4
+
+[Article]
+# Text from Wikipedia, https://en.wikipedia.org/wiki/Tokyo
+Originally a fishing village, named Edo, the city became a prominent political
+center in 1603, when it became the seat of the Tokugawa shogunate. By the mid-18th
+century, Edo was one of the most populous cities in the world at over one million.
+
+Following the end of the shogunate in 1868, the imperial capital in Kyoto was moved
+to the city, which was renamed Tokyo (literally "eastern capital").
+
+[Wikipedia]
+https://en.wikipedia.org/wiki/Tokyo
+

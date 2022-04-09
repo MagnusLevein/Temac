@@ -1,0 +1,78 @@
+﻿<:$blankline:>
+    <:context-end "</p>" "paragraph">
+    <:context-begin "<p>" "paragraph"><.>
+<:list:>
+    <:context-end "</p>" "paragraph">
+    <:context-begin "<ul>" "ul">
+<.>
+<:li:><li><.>
+<:_002F_list:>
+    <:context-end "</ul>" "ul">
+    <:context-begin "<p>" "paragraph">
+<.>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cities</title>
+<style>
+	body { max-width: 35em; margin: 8px auto; }
+	h1 { font-family: sans-serif; margin-bottom: 0; }
+	h1+p { margin-top: 0; }
+	article { border: 1px solid #999; margin-bottom: 1em; border-radius: 5px; }
+	header { font-family: sans-serif; position: relative; background-color: #999; padding: 8px; }
+	header p { margin: 0; }
+	header .subheader { color: #fff; font-variant-caps: all-petite-caps; }
+	header h2 { margin: 0; color: #333; }
+	header .number { position: absolute; top: 8px; right: 8px; font-size: 2.5em; color: #fff; }
+	article>p { text-align: justify; margin: 1em 8px; }
+	article>p:last-child { text-align: right; }
+	li { margin-bottom: 1em; }
+</style>
+</head>
+<:>================================================================================
+<:City:><:> Define macro 'City'
+<:citylist.=:><:=Name>
+<.>
+  <article>
+	<header>
+	  <p class="subheader"><:=Country></p>
+	  <h2><:=Name></h2>
+	  <p class="number"><:=Population> millions</p>
+	</header>
+	<:context-begin "<p>" "paragraph">
+	  <:=Article>
+	<:context-end "</p>" "paragraph">
+	<p><a href="<:=Wikipedia>">Read more on Wikipedia ›</a></p>
+  </article>
+<.>
+<:>================================================================================
+<:ListToText:><:> Define macro 'ListToText'
+  <:sandbox>
+    <:citynum=><:count $1>
+	<:i=>1
+	<:while i <= citynum><:>
+	  <:=$1[i]><:i++><:if i < citynum>, <:else><:if i==citynum> and <.if><.if><:>
+	<.while>
+  <.>
+<.>
+<:>================================================================================
+<:bodytext=:><:>Run the business logic, but write the output to variable 'bodytext'
+  <:files=><:getfiles "ex9_*.txt">
+  <:numfiles=><:count files>
+  <:i=>1
+  <:while i <= numfiles>
+  	<:file=><:=files[i]>
+  	<:i++>
+  	<:sandbox %citylist>
+  	  <:$null=><:include-defs2html file>
+  	  <:=City>
+  	<.>
+  <.while>
+<.>
+<:>================================================================================
+<body><:>Output HTML body
+<h1>Largest cities of the world</h1>
+<p>(Text and numbers about <:=ListToText citylist> are taken from Wikipedia.)</p>
+<:=bodytext>
+</body>
+</html>

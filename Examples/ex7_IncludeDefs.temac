@@ -1,0 +1,12 @@
+﻿<:link:><a href="<:=$1>"><.>
+<:_002F_link:></a><.>
+<:quoteOpened=>0
+<:_0022_:><:if quoteOpened==0>“<:quoteOpened++><:else>”<:quoteOpened--><.if><.>
+<:$blankline=></p><p>
+<!DOCTYPE html>
+<html>
+<head><title>Once upon a time</title></head>
+<body>
+<p><:include-defs2html "ex7_IncludedStory.txt"></p>
+</body>
+</html>

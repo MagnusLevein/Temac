@@ -1,0 +1,7 @@
+﻿{"}Once upon a time{"}, {link "https://en.wikipedia.org/wiki/Little_Red_Riding_Hood"}Little Red Riding Hood{/link} said, {"}there was a wolf...{"}
+
+- - -
+
+And she lived happily ever after.
+
+

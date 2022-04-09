@@ -1,0 +1,36 @@
+﻿[Name]
+São Paulo
+
+[Country]
+Brazil
+
+[Population]
+21.7
+
+[Wikipedia]
+https://en.wikipedia.org/wiki/S%C3%A3o_Paulo
+
+[Article]
+# Text from Wikipedia, https://en.wikipedia.org/wiki/S%C3%A3o_Paulo
+São Paulo is a cosmopolitan, melting pot city, home to the largest Arab, Italian,
+Japanese, and Portuguese diasporas, with examples including ethnic neighborhoods
+of Bixiga, Bom Retiro, and Liberdade. São Paulo is also home to the largest Jewish
+population in Brazil, with about 75,000 Jews. In 2016, inhabitants of the city were
+native to over 200 different countries.
+
+People from the city are known as paulistanos, while paulistas designates anyone
+from the state, including the paulistanos. The city's Latin motto, which it has
+shared with the battleship and the aircraft carrier named after it, is Non ducor,
+duco, which translates as "I am not led, I lead."
+
+The city, which is also colloquially known as Sampa or Terra da Garoa (Land of 
+Drizzle), is known for its unreliable weather, the size of its helicopter fleet,
+its architecture, gastronomy, severe traffic congestion and skyscrapers. São Paulo
+was one of the host cities of the 1950 and the 2014 FIFA World Cup. Additionally,
+the city hosted the IV Pan American Games and the São Paulo Indy 300.
+
+São Paulo has two main airports:
+{list}
+{li} São Paulo–Guarulhos International Airport (IATA: GRU) for international flights and national hub,
+{li} Congonhas-São Paulo Airport (IATA: CGH) for domestic and regional flights.
+{/list}

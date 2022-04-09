@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Temac": {
+      "commandName": "Project",
+      "commandLineArgs": "-parameter autumn -s readme.temac",
+      "workingDirectory": "$(OutDir)/Examples"
+    }
+  }
+}

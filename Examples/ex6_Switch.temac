@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html>
+<head><title>Switch example</title></head>
+<body>
+  <p>
+  <:switch $parameter>
+    <:case "winter" "spring" "summer" "autumn">
+      The example was compiled with season parameter <strong><:=$parameter></strong>.
+    <:case "summer">
+      That’s my favourite season!
+    <:case "">
+      Compile this example with <strong>-parameter</strong> <em>season</em>, where season is
+      <strong>winter</strong>, <strong>spring</strong>, <strong>summer</strong> or <strong>autumn</strong>.
+    <:default>
+      <:$err=>Trying to compile <:=$FileIn> with an unknown season parameter, -parameter <:=$parameter>.
+  <.switch>
+  </p>
+</body>
+</html>

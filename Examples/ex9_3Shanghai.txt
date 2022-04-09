@@ -1,0 +1,17 @@
+﻿[Name]			Shanghai
+
+[Country]		China
+
+[Population]	25.6
+
+[Wikipedia]		https://en.wikipedia.org/wiki/Shanghai
+
+[Article]
+# Text from Wikipedia, https://en.wikipedia.org/wiki/Shanghai
+Originally a fishing village and market town, Shanghai grew in importance
+in the 19th century due to both domestic and foreign trade and its favorable
+port location. The city was one of five treaty ports forced to open to
+European trade after the First Opium War. The Shanghai International
+Settlement and the French Concession were subsequently established. The
+city then flourished, becoming a primary commercial and financial hub of
+Asia in the 1930s.

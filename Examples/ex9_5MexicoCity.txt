@@ -1,0 +1,27 @@
+﻿[Name]
+Mexico City
+
+[Country]
+Mexico
+
+[Population]
+21.6
+
+[Wikipedia]
+https://en.wikipedia.org/wiki/Mexico_City
+
+[Article]
+	Mexico City is the capital and largest city of Mexico, and is both
+	the oldest capital city in the Americas and one of two founded by
+	indigenous people. The city was originally built on a group of islands
+	in Lake Texcoco by the Mexica (Azteca) in 1325 as Tenochtitlan. It
+	was almost completely destroyed in the 1521 Siege of Tenochtitlan 
+	and subsequently redesigned and rebuilt in accordance with the Spanish
+	urban standards. In 1524, the municipality of Mexico City was 
+	established, known as México Tenochtitlán, and as of 1585, it was 
+	officially known as Ciudad de México (Mexico City). Mexico City was
+	the political, administrative, and financial center of a major part of
+	the Spanish colonial empire. After independence from Spain was achieved,
+	the federal district was created in 1824.
+	
+	# Text från Wikipedia, https://en.wikipedia.org/wiki/Mexico_City
