@@ -33,6 +33,7 @@ static class Includer
     /// </summary>
     static public DataBlock IncludeFile(string fileName, Tokenizer tokenizer)
     {
+        fileName = fileName.Trim(); // Bug correction v. 1.1.2
         if (String.IsNullOrEmpty(fileName))
         {
             ErrorHandler.Instance.Error("Cannot include a file with empty filename.");

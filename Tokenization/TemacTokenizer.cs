@@ -130,6 +130,10 @@ class TemacTokenizer : Tokenizer
                         destination.WriteNext(analyzer.Analyze(new DataToken(location.GetRelativeLocation(relativeCol - databuf.Length), databuf.ToString())));
                         destination.WriteNext(analyzer.Analyze(new EndOfLineToken(location.GetRelativeLocation(relativeCol), EndOfLineKind.Hidden)));
                     }
+                    else if (hasCode)
+                    {   // Bug correction v. 1.1.2: But if it has code, end of line might be required
+                        destination.WriteNext(analyzer.Analyze(new EndOfLineToken(location.GetRelativeLocation(relativeCol), EndOfLineKind.Hidden)));
+                    }
                     return;
                 }
 
