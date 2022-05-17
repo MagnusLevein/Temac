@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temac.Environ;
 using Temac.Errors;
 using Temac.Interpretation;
+using Temac.Miscellaneous;
 
 // © Copyright 2022 Magnus Levein.
 // This file is part of Temac, Text Manuscript Compiler.
@@ -24,34 +27,15 @@ using Temac.Interpretation;
 
 namespace Temac.Tokenization;
 
-/// <summary>
-/// A token that represents ordinary text
-/// </summary>
-internal class DataToken : Token
+internal class Base64Tokenizer : Tokenizer
 {
-    private const int MaxBinaryDump = 80;
+    public override string PublicName => "base64 encoded binary data";
 
-    string _data;
-    bool _binary;
-
-    public override StructuralClass StructuralClass => StructuralClass.Continuous;
-
-    public DataToken(Location location, string data, bool isBinary = false) : base(location)
+    public override void Tokenize(string inputFileName, DataBlock destination)
     {
-        _data = data;
-        _binary = isBinary;
+        string base64string = Convert.ToBase64String(File.ReadAllBytes(inputFileName));
+        destination.WriteNext(new DataToken(new Location(inputFileName, 0, 0), base64string, isBinary: true));
     }
 
-    public override string ToDump(bool _, bool fullBinary = false)
-    {
-        if(!_binary || _data.Length <= MaxBinaryDump || fullBinary)
-            return _data;
-
-        return _data.Substring(0, MaxBinaryDump/2) + "\u2026" + _data.Substring(_data.Length - MaxBinaryDump/2 -1, MaxBinaryDump/2);
-    }
-
-    public override string ToString()
-    {
-        return _data;
-    }
+    protected override void TokenizeLine(StructureAnalyzer structureAnalyzer, Location location, StringPointer ptr, DataBlock destination) => throw new NotSupportedException();
 }

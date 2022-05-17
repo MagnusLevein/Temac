@@ -146,6 +146,7 @@ static class Interpreter
                     case Instruction.Include:
                     case Instruction.IncludeHtmlescape:
                     case Instruction.IncludeDefsHtmlescape:
+                    case Instruction.IncludeBase64:
                         if (ctoken.Parameters.Length != 1)
                             throw new WrongNumberOfArgumentsInternalException(ctoken);
 

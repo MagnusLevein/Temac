@@ -38,7 +38,7 @@ class EndOfLineToken : Token
 
     public override StructuralClass StructuralClass => StructuralClass.EndOfLine;
 
-    public override string ToDump(bool compact = false)
+    public override string ToDump(bool compact = false, bool _ = false)
     {
         if (compact)
             return "\u00b6";

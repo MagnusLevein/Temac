@@ -84,5 +84,5 @@ public abstract class Token
             throw new TemacInternalException("Cannot modify token.");
     }
 
-    public abstract string ToDump(bool compact = false);
+    public abstract string ToDump(bool compact = false, bool fullBinary = false);
 }

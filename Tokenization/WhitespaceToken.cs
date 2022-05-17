@@ -41,7 +41,7 @@ internal class WhitespaceToken : Token
         WhitespaceString = blanks;
     }
 
-    public override string ToDump(bool compact = false)
+    public override string ToDump(bool compact = false, bool _ = false)
     {
         if (compact)
             return " ";

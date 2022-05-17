@@ -395,6 +395,7 @@ The filenames are given one on each line, and can easily be managed with <code>â
 <strong><:include</strong> <em>filename</em><strong>></strong>
 <strong><:include-text2html</strong> <em>filename</em><strong>></strong>
 <strong><:include-defs2html</strong> <em>filename</em><strong>></strong>
+<strong><:include-bin2base64</strong> <em>filename</em><strong>></strong>
 </pre>
 
 * **include** reads the file as it is, and interprets it as a Temac text file. Use this to include Temac code or HTML.
@@ -402,6 +403,8 @@ The filenames are given one on each line, and can easily be managed with <code>â
 * **include-text2html** translates the characters `<`, `>` and `&` to their HTML entity codes (hence the '2html' part of the suffix in the command name). This can be used to show plain text in HTML, including source codes.
 
 * **include-defs2html** reads a 'manuscript' text file with variable definitions, using the *definition syntax* described above. As the '2html' suffix indicates, it also translates the characters `<`, `>` and `&` to HTML entity codes. Use this to utilize the benefits of the definition syntax.
+
+* **include-bin2base64** includes a binary file as a base64 encoded text. Use this to create base64-encoded data URIs.
 
 #### Directing the output
 

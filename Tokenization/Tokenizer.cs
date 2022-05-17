@@ -54,6 +54,9 @@ abstract class Tokenizer
         }
     }
 
+    /// <summary>
+    /// This field is printed prior to an tokenization dump
+    /// </summary>
     public abstract string PublicName { get; }
 
     public virtual void Tokenize(string inputFileName, DataBlock destination)

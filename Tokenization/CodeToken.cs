@@ -56,7 +56,7 @@ internal class CodeToken : Token
         NextStructuralSibling = nextToken;
     }
 
-    public override string ToDump(bool compact = false)
+    public override string ToDump(bool compact = false, bool _ = false)
     {
         StringBuilder sb = new StringBuilder();
 

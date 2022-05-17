@@ -35,6 +35,7 @@ class TemacTokenizer : Tokenizer
         new Translation("<:include \b\v\b>",                      Instruction.Include),
         new Translation("<:include-text2html \b\v\b>",            Instruction.IncludeHtmlescape),
         new Translation("<:include-defs2html \b\v\b>",            Instruction.IncludeDefsHtmlescape),
+        new Translation("<:include-bin2base64 \b\v\b>",           Instruction.IncludeBase64),
 
         new Translation("<:count \b\v\b>",                        Instruction.CountLines),
         new Translation("<:=\b\v[\v]\b>",                         Instruction.ReadLine),

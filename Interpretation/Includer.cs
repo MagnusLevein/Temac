@@ -71,6 +71,9 @@ static class Includer
 
             case Instruction.IncludeDefsHtmlescape:
                 return new DefinitionTokenizer(htmlEscape: true);
+
+            case Instruction.IncludeBase64:
+                return new Base64Tokenizer();
         }
 
         throw new TemacInternalException("Unhandled instruction in Includer.GetTokenizer()");

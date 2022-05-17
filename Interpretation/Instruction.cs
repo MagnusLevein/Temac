@@ -69,6 +69,7 @@ enum Instruction : UInt32
     Include                 = 0x10090,
     IncludeHtmlescape       = 0x100a0,
     IncludeDefsHtmlescape   = 0x100b0,
+    IncludeBase64           = 0x100c0,
 
     CountLines              = 0x10100,
     ReadLine                = 0x10200,

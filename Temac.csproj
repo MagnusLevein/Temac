@@ -6,7 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NeutralLanguage>en-001</NeutralLanguage>
-    <AssemblyVersion>1.1.2</AssemblyVersion>
+    <AssemblyVersion>1.2.0</AssemblyVersion>
     <Description>Temac - Text Manuscript Compiler</Description>
     <Copyright>Copyright © 2022 Magnus Levein</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>

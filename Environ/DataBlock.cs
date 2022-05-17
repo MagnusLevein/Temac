@@ -301,7 +301,10 @@ public class DataBlock
             {
                 filename=token.Location != null ? token.Location.Filename : "unknown file";
                 lineNum=token.Location != null ? token.Location.LineNo : 0;
-                Console.Write("\n{0} {1,4}: ", filename, lineNum);
+                if (lineNum > 0)
+                    Console.Write("\n{0} {1,4}: ", filename, lineNum);
+                else
+                    Console.WriteLine(); // special case for base64 (binary) included file
             }
             Console.Write(token.ToDump());
         }
@@ -331,7 +334,7 @@ public class DataBlock
             if(token is CodeToken)
                 hasCode = true;
 
-            contents.Append(token.ToDump(compact: true));
+            contents.Append(token.ToDump(compact: true, fullBinary: true));
         }
 
         return new DataBlockDump(this.Name, contents.ToString(), String.Join(';', sourceFiles)) 
