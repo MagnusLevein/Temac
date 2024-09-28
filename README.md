@@ -12,7 +12,7 @@ The project includes a handful of **pedagogic examples**, and a great **[Referen
 
 ### Download
 
-Temac is currently only distributed as source code. It is written in C# .Net 6 with Visual Studio Community 2022 on Windows, but it should work cross-platform.
+Temac is currently only distributed as source code. It is written in C# .Net 8 with Visual Studio Community 2022 on Windows, but it should work cross-platform.
 
 Download to your computer:
 ```shell
