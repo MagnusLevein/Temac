@@ -65,6 +65,7 @@ enum Instruction : UInt32
     GetFiles                = 0x10030,
     ContextBegin            = 0x10040,
     ContextEnd              = 0x10050,
+    Unwrap                  = 0x10060,
 
     Include                 = 0x10090,
     IncludeHtmlescape       = 0x100a0,

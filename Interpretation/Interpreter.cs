@@ -167,6 +167,23 @@ static class Interpreter
 
 
 
+                    case Instruction.Unwrap:
+                        // Removes prefix and suffix from a string
+                        if(ctoken.Parameters.Length != 3)
+                            throw new WrongNumberOfArgumentsInternalException(ctoken);
+
+                        string contents = ctoken.Parameters[0].ReadAsString(scope);
+                        string prefix = ctoken.Parameters[1].ReadAsString(scope);
+                        string suffix = ctoken.Parameters[2].ReadAsString(scope);
+                        if (prefix.Length > 0 && contents.StartsWith(prefix))
+                            contents = contents.Substring(prefix.Length);
+                        if (suffix.Length > 0 && contents.EndsWith(suffix))
+                            contents = contents.Substring(0, contents.Length - suffix.Length);
+                        dest.WriteNext(new DataToken(new CompilerLocation(), contents));
+                        break;
+
+
+
                     case Instruction.ReadLine:
                         if (ctoken.Parameters.Length != 2)
                             throw new WrongNumberOfArgumentsInternalException(ctoken);

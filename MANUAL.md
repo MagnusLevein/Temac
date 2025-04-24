@@ -244,6 +244,22 @@ But please note that this is *not* a general syntax. It is a specific command. H
 </pre>
 
 
+#### Unwrapping prefix and suffix in data variables
+<pre>
+<strong><:unwrap</strong> <em>variable</em> <em>prefix</em> <em>suffix</em><strong>></strong>
+</pre>
+
+
+For a data variable it is also possible to remove a specified prefix and/or suffix from its content, effectively unwrapping the inner value.
+
+<pre>
+<:file=>index.html
+<:name=:><:unwrap file "" ".html"><.>
+<:ext=:><:unwrap file name ""><.>
+Name: <:=name>  <:> will output Name: index
+Ext: <:=ext>    <:> will output Ext: .html
+</pre>
+
 
 #### Sandboxing to protect the global scope
 

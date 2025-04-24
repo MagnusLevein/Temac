@@ -233,7 +233,7 @@ class Program
         Version? version = Assembly.GetEntryAssembly()?.GetName().Version;
         if (version != null)
             versionstring = String.Format(" version {0}", version.ToString(3));
-        Console.WriteLine("Temac - Text Manuscript Compiler{0} Copyright © 2022–2024 Magnus Levein.", versionstring);
+        Console.WriteLine("Temac - Text Manuscript Compiler{0} Copyright © 2022–2025 Magnus Levein.", versionstring);
         Console.WriteLine("Temac comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain");
         Console.WriteLine("conditions. See GNU General Public License (version 3) for details.");
         Console.WriteLine();

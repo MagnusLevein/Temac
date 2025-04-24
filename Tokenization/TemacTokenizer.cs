@@ -55,6 +55,7 @@ class TemacTokenizer : Tokenizer
         new Translation("<:context-begin \b\v \b\v\b>",           Instruction.ContextBegin), // with two arguments (data, context name)
         new Translation("<:context-end \b\v\b>",                  Instruction.ContextEnd), // with one argument (data)
         new Translation("<:context-end \b\v \b\v\b>",             Instruction.ContextEnd), // with two arguments (data, context name)
+        new Translation("<:unwrap \b\v \b\v \b\v\b>",             Instruction.Unwrap),
 
         new Translation("<:sandbox\b>",                           Instruction.Sandbox),               // without filename; without pipes
         new Translation("<:sandbox \b\a%\v\b>",                   Instruction.Sandbox),               // without filename; with 1 or more pipe(s)
