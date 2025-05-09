@@ -8,7 +8,7 @@ using Temac.Errors;
 using Temac.Interpretation;
 using Temac.Miscellaneous;
 
-// © Copyright 2022 Magnus Levein.
+// © Copyright 2022-2025 Magnus Levein.
 // This file is part of Temac, Text Manuscript Compiler.
 //
 // Temac is free software: you can redistribute it and/or modify it under the

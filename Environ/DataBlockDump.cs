@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Temac.Miscellaneous;
 
-// © Copyright 2022 Magnus Levein.
+// © Copyright 2022-2025 Magnus Levein.
 // This file is part of Temac, Text Manuscript Compiler.
 //
 // Temac is free software: you can redistribute it and/or modify it under the
@@ -80,8 +81,8 @@ public class DataBlockDump : IComparable<DataBlockDump>
 
         if (printHeader)
         {
-            Console.WriteLine("    " + FixedWidth("Name", nameWidth) + "  " +
-                      FixedWidth("Contents", contentsWidth) + "  " + FixedWidth("Source(s)", sourceWidth));
+            Console.WriteLine("    " + StringWidth.Fixed("Name", nameWidth) + "  " +
+                      StringWidth.Fixed("Contents", contentsWidth) + "  " + StringWidth.Fixed("Source(s)", sourceWidth));
             return;
         }
 
@@ -89,20 +90,10 @@ public class DataBlockDump : IComparable<DataBlockDump>
         char status = IsWriting ? 'W' : IsReading ? 'R' : ' ';
         char macro = IsMacro ? ':' : ' ';
 
-        Console.WriteLine($" {type}{status}{macro}" + FixedWidth(_variableName, nameWidth) + "  " + 
-                          FixedWidth(_contentsDump, contentsWidth) + "  " + FixedWidth(_sourceFiles, sourceWidth));
+        Console.WriteLine($" {type}{status}{macro}" + StringWidth.Fixed(_variableName, nameWidth) + "  " + 
+                          StringWidth.Fixed(_contentsDump, contentsWidth) + "  " + StringWidth.Fixed(_sourceFiles, sourceWidth));
     }
-
-    private string FixedWidth(string text, int width)
-    {
-        if (text.Length <= width)
-            return text.PadRight(width, ' ');
-
-        string leftText = text.Substring(0, width/2);
-        string rightText = text.Substring(text.Length - (width - leftText.Length - 1));
-        return leftText + "\u2026" + rightText;
-    }
-
+        
     public int CompareTo(DataBlockDump? other)
     {
         if(other == null)

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temac.Errors;
+using Temac.Miscellaneous;
 using Temac.Tokenization;
 
-// © Copyright 2022 Magnus Levein.
+// © Copyright 2022-2025 Magnus Levein.
 // This file is part of Temac, Text Manuscript Compiler.
 //
 // Temac is free software: you can redistribute it and/or modify it under the
@@ -37,6 +38,8 @@ public class DataBlock
     static public DataBlock SystemBlockNULL = new NullDataBlock();
 
     static public DataBlock SystemBlockERR = new ErrDataBlock();
+
+    static public DataBlock SystemBlockSTATUS = new StatusDataBlock();
 
     public string Name { get; protected set; }
 
@@ -292,6 +295,7 @@ public class DataBlock
         string filename="";
         int lineNum=0;
 
+        ConsoleMessageHandler.Instance.Reset();
         Console.Write("### Dump of {0} [{1}] ###", Name, tokenizerName);
         foreach (var token in _tokens)
         {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Temac.Errors;
 using Temac.Tokenization;
 
-// © Copyright 2022 Magnus Levein.
+// © Copyright 2022-2025 Magnus Levein.
 // This file is part of Temac, Text Manuscript Compiler.
 //
 // Temac is free software: you can redistribute it and/or modify it under the
@@ -43,6 +43,7 @@ public class Scope
     {
         _dataBlocks.Add("$null", DataBlock.SystemBlockNULL);
         _dataBlocks.Add("$err", DataBlock.SystemBlockERR);
+        _dataBlocks.Add("$status", DataBlock.SystemBlockSTATUS);
 
         var today = DateTime.Today;
         _dataBlocks.Add("$YYYY", new DataBlock("$YYYY").OpenForWriting(false).WriteNext(new DataToken(new CompilerLocation(), today.Year.ToString())).Close(makeReadOnly: true));
@@ -154,6 +155,9 @@ public class Scope
 
             if (name == "$err")
                 return DataBlock.SystemBlockERR.OpenForWriting(true);
+
+            if (name == "$status")
+                return DataBlock.SystemBlockSTATUS.OpenForWriting(append);
 
             if (ReadOnlyBlocks.Contains(name) || IsParameterName(name, out int _))
             {

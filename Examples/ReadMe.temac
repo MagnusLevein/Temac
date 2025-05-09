@@ -33,6 +33,7 @@
 <:while i <= numfiles>
   <:currentFile=><:=files[i]>
   <:sandbox currentFile>
+    <:$status=>Currently compiling: <:=$FileName>
     <:output $FileOut><:include $FileIn><.>
   <.>
   <:i++>

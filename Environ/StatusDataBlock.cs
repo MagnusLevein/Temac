@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temac.Errors;
+using Temac.Miscellaneous;
 using Temac.Tokenization;
 
 // © Copyright 2022-2025 Magnus Levein.
@@ -25,18 +26,13 @@ using Temac.Tokenization;
 namespace Temac.Environ;
 
 /// <summary>
-/// Write to the ERR data block to rise an user defined error.
+/// Write to the STATUS data block to set a progress status message during
+/// compilation.
 /// </summary>
-sealed class ErrDataBlock : DataBlock
+sealed class StatusDataBlock : DataBlock
 {
-    public ErrDataBlock() : base("$err")
+    public StatusDataBlock() : base("$status")
     {
-    }
-
-    public override DataBlock OpenForReading()
-    {
-        ErrorHandler.Instance.Error("Data block \'" + Name + "\' is writeonly.");
-        return SystemBlockNULL;
     }
 
     public override DataBlock Close(bool makeReadOnly = false)
@@ -47,13 +43,22 @@ sealed class ErrDataBlock : DataBlock
         StringBuilder sb = new StringBuilder();
         foreach (var token in _tokens)
         {
-            if (token is CodeToken)
-                ErrorHandler.Instance.Error("Expected plain text, but found unprocessed Temac code in \'" + Name + "\'.");
+            if (token is WhitespaceToken)
+                continue;
+            if (token is EndOfLineToken eolt)
+            {
+                sb.Append(" ");
+            }
             else
-                sb.Append(token.ToString());
+            {
+                if (token is CodeToken)
+                    ErrorHandler.Instance.Error("Expected plain text, but found unprocessed Temac code in \'" + Name + "\'.");
+                else
+                    sb.Append(token.ToString());
+            }
         }
 
-        ErrorHandler.Instance.Error("User defined error condition:\n" + sb.ToString());
+        ConsoleMessageHandler.Instance.SetStatusText(sb.ToString().Trim());
         base.Close();
         return this;
     }

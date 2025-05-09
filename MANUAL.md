@@ -123,7 +123,9 @@ normal variables with $-names.
 * **`$null`** is always empty. Everything written to it will disappear.
 
 * Writing to **`$err`** causes a compilation error, and prints its contents as a user-defined
-error message.</strong>
+error message.
+
+* Writing to **`$status`** shows up as a progress status message during the compilation.
 
 * **`$YYYY`**, **`$MM`**, **`$DD`** holds the current date (year, month and day in month).
 

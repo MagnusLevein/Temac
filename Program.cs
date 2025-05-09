@@ -7,8 +7,9 @@ using Temac.Errors;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using Temac.Miscellaneous;
 
-// © Copyright 2022 Magnus Levein.
+// © Copyright 2022-2025 Magnus Levein.
 // This file is part of Temac, Text Manuscript Compiler.
 //
 // Temac is free software: you can redistribute it and/or modify it under the
@@ -67,13 +68,7 @@ class Program
             {
                 if (Interpreter.VariableDump != null)
                 {
-                    int columns = 80;
-                    try
-                    {
-                        columns = Console.IsOutputRedirected ? 200 : Math.Max(Console.WindowWidth, 80);
-                    }
-                    catch { }
-                    DataBlockDump.PrintDump(Interpreter.VariableDump, columns);
+                    DataBlockDump.PrintDump(Interpreter.VariableDump, ConsoleMessageHandler.Instance.ScreenColumns);
                 }
             }
 
@@ -85,6 +80,7 @@ class Program
         }
         catch (TemacException e)
         {
+            ConsoleMessageHandler.Instance.Reset(true);
             if (e is TemacInternalException te)
             {
                 Console.Error.WriteLine("\nTemac internal error: {0}\nAborting.", te.Message);
@@ -105,9 +101,12 @@ class Program
         }
         catch (Exception e)
         {
+            ConsoleMessageHandler.Instance.Reset(true);
             Console.Error.WriteLine("\nUncaught exception:\n{0}", e.Message);
             exitValue = ExitValues.InternalError;
         }
+
+        ConsoleMessageHandler.Instance.Reset();
 
         if (CompilerEnvironment.Instance.ListFileUsage)
         {
