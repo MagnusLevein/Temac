@@ -1,7 +1,7 @@
 ﻿Temac – Text Manuscript Compiler
 
 <!--
-© Copyright 2022 Magnus Levein.
+© Copyright 2022-2025 Magnus Levein.
 This file is part of Temac, Text Manuscript Compiler.
 
 Temac is free software: you can redistribute it and/or modify it under the
@@ -20,129 +20,166 @@ with Temac. If not, see <https://www.gnu.org/licenses/>.
 
 # Temac Reference Manual
 
-> Temac is a great tool if you want to produce a lot of similar text files (e.g. HTML), built on the same skeleton but with different contents, or create a long file compiled together from smaller parts. Examples span from cookbook sheets to help files.
+> Temac is a powerful tool for generating many similar text files (e.g., HTML pages) based on a shared
+> template but with varying content, or for compiling a large file from smaller components. Use cases
+> range from cookbook pages to help files.
 
-- [Command syntax](#command-syntax)
+- [Command Syntax](#command-syntax)
   - [Options](#options)
-  - [Return values](#return-values)
-- [Temac scripting languages](#temac-scripting-languages)
+  - [Return Values](#return-values)
+- [Temac Scripting Languages](#temac-scripting-languages)
   - [Comments](#comments)
-  - [Variables, macros and string constants](#variables-macros-and-string-constants)
-  - [Counting, comparing and looping](#counting-comparing-and-looping)
-  - [Accessing the file system](#accessing-the-file-system)
-  - [Special commands](#special-commands)
+  - [Variables, Macros, and String Constants](#variables-macros-and-string-constants)
+  - [Counting, Comparing, and Looping](#counting-comparing-and-looping)
+  - [File System Access](#accessing-the-file-system)
+  - [Special Commands](#special-commands)
+- [Temac Project Files](#temac-project-files)
 - [Troubleshooting](#troubleshooting)
 
 
-## Command syntax
+## Command Syntax
+
 <pre>
-temac   <em>[options ...]</em>   <em>inputFile</em>  <em>[outputPattern]</em>
+temac   <em>[compilerOptions ...]</em>   <em>inputFile</em>  <em>[outputPattern]</em>
+
+temac   <em>[projectOptions  ...]</em>   <em>projectFile</em>.temacproj
+
+temac   -? | -h | -help
 </pre>
 
-**inputFile** - A Temac text file to read.
+`inputFile` – A Temac script file to compile.
 
-**outputPattern** - Pattern for construction of output filenames, with `@` indicating its base name. Defaults to `@.html`. Temac will only allow writing to file names maching this criteria.
+`outputPattern` – A pattern for construction of output filenames. Use `@` to represent the
+base name. Defaults to `@.html`. Temac only permits writing to filenames that match this pattern.
+
+`projectFile` – A Temac project file (`.temacproj`) to process. This can be useful in
+environments where OS-level batch files are restricted.
+See [Temac Project Files](#Temac-project-files).
 
 ### Options
+If *compiler options* are specified when processing a `.temacproj` file,
+they are automatically inherited by all underlying compilation commands.
 
-#### <pre><strong>-?</strong>, <strong>-h</strong>, <strong>-help</strong></pre>
-Show command syntax and options.
+#### `-?`, `-h`, `-help`
+Display command syntax and available options.
 
-#### <pre><strong>-dn</strong>, <strong>-debug-newlines</strong></pre>
-Print end-of-line token data in output files.
-***Do not use this in production.***
+#### `-dn`, `-debug-newlines`
+Output end-of-line token data in compiled files.
+***Not for production use.***
 
-#### <pre><strong>-f</strong>, <strong>-files</strong></pre>
-List file usage summary to stdout.
+#### `-f`, `-files`
+Print a summary of file usage to stdout.
 
-#### <pre><strong>-p</strong> <em>text</em>, <strong>-parameter</strong> <em>text</em></pre>
-Set variable `$parameter` to the specified text.
+#### `-p <text>`, `-parameter <text>` 
+Assign the specified text to the `$parameter` variable.
 
-#### <pre><strong>-s</strong>, <strong>-stop</strong></pre>
-Stop on first error, and print stack trace (to stderr) and variable dump (to stdout).
+#### `-s`, `-stop`
+Stop execution on the first error. Prints a stack trace to stderr and a variable dump to stdout.
 
-#### <pre><strong>-t</strong>, <strong>-tokens</strong></pre>
+#### `-t`, `-tokens`
 Dump tokenization of read files to stdout.
 
-#### <pre><strong>-w</strong> <em>limit</em>, <strong>-whilemax</strong> <em>limit</em></pre>
-Set max limit for while loops (default limit value is 1000).
+#### `-v`, `-verbose`
+Enable verbose output when processing a Temac project file.
 
-### Return values
-0) Ok
-1) Warning or important information
-2) Compilation error
-3) Internal error
-4) Argument error
+#### `-w <limit>`, `-whilemax <limit>`
+Set the maximum number of iterations for `while` loops. If not specified, the default limit is 1000.
+
+### Return Values
+ * `0` – Success
+ * `1` – Warning or important message
+ * `2` – Compilation error
+ * `3` – Internal error
+ * `4` – Argument error
 
 
 
-## Temac scripting languages
+## Temac Scripting Languages
 
-Temac uses a *dual language approach*. The business logic or "motor scripts" are written with the *Temac syntax*, but definition files or "manuscripts" are written in a very simple *definition syntax*. The first file Temac reads is always a file with Temac syntax. (To read a file with definition syntax, utilize the `<:include-defs2html "...">` command described later.)
+Temac uses a *dual language approach*. The business logic (or "motor scripts") is written in
+**Temac syntax**, while definition files or "manuscripts" use a much simpler **definition syntax**.
+The main input file to the Temac compiler must always use Temac syntax. (To read a file in
+definition syntax, use the `<:include-defs2html "...">` command, described later.)
 
-The Temac syntax is built on derivations of the expressions `<:>` and `<.>`, as these virtually never are used in normal HTML, Javascript or CSS code. It is described in detail in the following sections.
+Temac syntax is based on derivations of the  `<:>` and `<.>` expressions—sequences that are
+very unlikely to appear in standard HTML, Javascript, or CSS. It is described in detail below.
 
 The definition syntax consists of only three expressions:
- * **`#`** starts a comment line, but only if it is the first non-blank character on that line.
+ * **`#`** starts a comment line, but only if it’s the first non-blank character on that line.
  
-* <code><strong>[</strong><em>variable</em><strong>]</strong></code> tells, as long as it is not preceded by any other text on that line, that what follows is to be loaded into variable *variable*. It could be a single line or several paragraphs, until next `[...]`-statement or end-of-file.
+ * <code><strong>[</strong><em>variable</em><strong>]</strong></code> (when it is not preceded
+   by any other text on that line) marks the start of a block of text to be assigned to *variable*.
+   The block continues until the next `[...]` statement or the end of the file.
 
- * <code><strong>{</strong><em>variable</em><strong>}</strong></code> or <code><strong>{</strong><em>variable parameters ...</em><strong>}</strong></code> is used to invoke a variable (either a data variable or a macro variable). This expression retains its meaning in all positions.
+ * <code><strong>{</strong><em>variable</em><strong>}</strong></code> or
+   <code><strong>{</strong><em>variable parameters ...</em><strong>}</strong></code> invokes a
+   variable (either a data variable or a macro variable). This expression retains its meaning in
+   any position in the text.
 
-A few more details about these three commands are given below, together with the Temac syntax counterparts.
+More details about these three expressions are given below, along with their equivalents in Temac
+syntax.
 
 
 ### Comments
-A comment in Temac syntax starts with `<:>` and continues until the end of the line.
+
+In Temac syntax, a comment starts with `<:>` and continues until the end of the line:
 <pre>
 <strong><:></strong> <em>write your comment here</em>
 Hello, World!<strong><:></strong> <em>or here</em>
 </pre>
 
-In definition syntax, the start-of-comment character is `#`, and it must be the first non-blank character of that line:
+In definition syntax, comments start with `#`, which must be the first non-blank character
+on the line:
 <pre>
 <strong>#</strong> <em>write your comment here</em>
               <strong>#</strong> <em>or here</em>
 </pre>
 
 
-### Variables, macros and string constants
+### Variables, Macros, and String Constants
 
-Variables in Temac are normally global. As we will see later, there is a sandboxing mechanism that
-can be used to limit the scope.
+Variables in Temac are typically global. However, as explained later, there is a sandbox
+mechanism to limit their scope.
 
-Variable names are words that consists of letters, digits or underscore (`_`). The first
-character cannot be a digit, but it can be a dollar sign (`$`). Temac uses the Unicode
-character classification, which means that non-English characters are accepted too.
+Variable names consist of letters, digits, or underscores (`_`). They must not begin with a digit,
+but may begin with a dollar sign (`$`). Temac uses Unicode-aware character classification, so
+non-English letters are permitted.
 
-As a special feature in *definition synax*, the first character in the variable name of a `{...}`-expression, can be *anything* except control characters and blanks. This first character is transcoded to the form `_0000_` if it is not in the valid character range for variable names, where 0000 stands for a four-digit uppercase hexadecimal Unicode codepoint. Hence, a definition of variable `_002F_` could be invoked with the expression `{/}` in an included definition text file.
+In *definition syntax*, the first character in a `{...}` expression can be *any character*
+except control characters and spaces. If it’s not a valid character for variable names, it is
+automatically transcoded to the form `_0000_`, where 0000 is a four-digit uppercase hexadecimal
+Unicode codepoint. For example, variable `_002F_` can be invoked as `{/}`.
 
-Variable names beginning with the dollar sign (`$`) are special variables. Do not create
-normal variables with $-names.
+Variable names beginning with `$` are special. Avoid using such names for regular variables.
 
-* **`$null`** is always empty. Everything written to it will disappear.
+Temac defines the following special variables:
 
-* Writing to **`$err`** causes a compilation error, and prints its contents as a user-defined
-error message.
+* **`$null`** – Always empty. Anything written to it disappears.
 
-* Writing to **`$status`** shows up as a progress status message during the compilation.
+* **`$err`** – Writing to this variable triggers a compilation error and prints the content
+  as a custom error message.
 
-* **`$YYYY`**, **`$MM`**, **`$DD`** holds the current date (year, month and day in month).
+* **`$status`** – Used to display a status message during compilation.
 
-* **`$FileIn`** is the name of the main input file, **`$FileOut`** is the name of the main output file,
-and **`$FileName`** is the naked name without path or extension. These values are read-only
-but can, however, be 'faked' during setup of a sandbox block.
+* **`$YYYY`**, **`$MM`**, **`$DD`** – Hold the current year, month, and day.
 
-* **`$parameter`** can be set from the command line, with option `-parameter`.
+* **`$FileIn`** – The name of the main input file.<br>
+  **`$FileOut`** – The name of the main output file.<br>
+  **`$FileName`** – The base filename, without path or extension.<br>
+  *(These values are read-only but can be faked in a sandbox.)*
 
-* **`$blankline`** is invoked for every paragraph break (blank line) in a
-definition file. It is empty by default.
+* **`$parameter`** – Can be set via the command line using the `-parameter` option.
 
-* **`$1`**, **`$2`**, **`$3`** (and so on) referes to the parameters sent to an invoked macro. **`$`** is
-the number of parameters passed. (These variables are of course not global.)
+* **`$blankline`** – Invoked for each blank line (paragraph break) in a definition file.
+  Empty by default.
+
+* **`$1`**, **`$2`**, **`$3`** ... – Refer to macro parameters.<br>
+  **`$`** – Holds the total number of parameters passed.<br>
+  *(These are local to the macro and not global.)*
 
 
-#### Assigning text to a variable
+#### Assigning Text to a Variable
+Temac provides several ways to assign or append text to a variable:
 <pre>
 <strong><:</strong><em>variable</em><strong>=></strong> <em>assigns text until the end of the line</em>
 
@@ -159,11 +196,12 @@ the end of the block</em>
 <strong><.></strong>
 </pre>
 
-If *variable* does not exist, it is created. If it already exists, it is either replaced
-(variants `=>` and `=:>`) or appended to (variants `.=>` and `.=:>`). The use of `.=` as
-append operator is inspired from PHP.
+If *variable* does not exist, it will be created. If it already exists, it will either be replaced
+(variants `=>` and `=:>`) or appended to (variants `.=>` and `.=:>`). The `.=` syntax is inspired
+by PHP and used to append content.
 
-In definition syntax, there is just one variant, which replaces any old contents:
+In definition syntax, there is only one form of assignment, which always replaces any existing
+content:
 
 <pre>
 <strong>[</strong><em>variable</em><strong>]</strong>
@@ -175,7 +213,8 @@ next assignment starts</em>
 </pre>
 
 
-#### Assigning code to a macro variable
+#### Assigning Code to a Macro Variable
+To assign unevaluated code to a macro variable, use:
 <pre>
 <strong><:</strong><em>variable</em><strong>:></strong>
 <em>assigns code until
@@ -183,7 +222,12 @@ the end of the block</em>
 <strong><.></strong>
 </pre>
 
-If *variable* does not exist, it is created. If it already exists, it is replaced.
+If *variable* does not exist, it will be created. If it already exists, it will be replaced.
+
+Temac does not technically distinguish between data and macro variables. The reason for the
+different assignment syntax is that code in a macro variable is not evaluated until the macro
+is invoked, whereas code in a variable assignment (expressions with `=`) is evaluated immediately
+during assignment.
 
 Temac, in fact, does not make any real difference between data variables and macro
 variables. The reason for different assignment syntax is, that the code in a macro
@@ -191,19 +235,18 @@ definition is not evaluated until the macro is invoked. Any code in a variable a
 (variants with `=`) is, however, evaluated during the assignment process.
 
 
-#### Invoke a variable or macro variable
+#### Invoking a Variable or Macro Variable
+To insert the contents of a variable or invoke a macro, use:
 <pre>
 <strong><:=</strong><em>variable</em><strong>></strong>
 <strong><:=</strong><em>variable parameters ...</em><strong>></strong>
 </pre>
 
-This command interprets and inserts the contents of *variable*, and it works for data variables
-as well as macro variables.
+This command works for both data and macro variables.
 
-If *variable* is a macro variable (i.e. if it contains unprocessed code),
-it is possible to send parameters to the macro. In the macro, the special variables
-`$1`, `$2`, `$3` (and so on) gives read-only access to these parameters. The special variable `$`
-holds the number of passed parameters.
+If the *variable* is a macro (i.e., it contains unevaluated code), you can pass parameters to it.
+Inside the macro, the special variables `$1`, `$2`, `$3`, etc., provide read-only access to
+the passed arguments, and `$` holds the number of parameters.
 
 This command is also available in definition syntax:
 
@@ -212,11 +255,16 @@ This command is also available in definition syntax:
 <strong>{</strong><em>variable parameters ...</em><strong>}</strong>
 </pre>
 
-As was mentioned earlier, this syntax accepts the first character of the variable name to be almost anything – any illegal character is transcoded to a `_0000_` expression (i.e. four uppercase hexadecimal digits, surronded by underscores).
+As noted earlier, the first character of the variable name in a `{...}` expression may be
+almost any character. If it is not allowed in regular variable names, it will be transcoded
+to the form `_0000_` (a four-digit uppercase hexadecimal Unicode codepoint, surrounded by
+underscores).
 
 
-#### String constants and numbers
-In most cases, string constants (`"..."`) can be used instead of varibles. A number can be written without quotation marks, but is still stored as a string constant (and any leading zeros are stored too). Temac has no 'numeric' data type.
+#### String Constants and Numbers
+In most cases, string constants (`"..."`) can be used instead of varibles. A number can be
+written without quotation marks, but is still stored as a string. Leading zeros are preserved.
+Temac does not have a separate numeric data type.
 
 <pre>
 <:=<strong>"Hello, World!"</strong>>
@@ -224,36 +272,38 @@ In most cases, string constants (`"..."`) can be used instead of varibles. A num
 <:=myMacro <strong>007</strong>>
 </pre>
 
-To include a literal quotation mark in the string, double it.
+To include a literal quotation mark inside a string, double it.
 
 
-#### Read line by line from a data variable
+#### Reading Lines from a Data Variable
 
-If the variable is a data variable (i.e. it contains no unprocessed code), it is possible to fetch a specific line from it: 
+If a variable contains *data* (i.e. not unevaluated code), you can extract a specific line
+using: 
 
 <pre>
 <strong><:=</strong><em>variable</em><strong>[</strong><em>line_number</em><strong>]></strong>
 <:> Line numbers are 1-based.
 </pre>
 
+This is **not** a general bracket syntax. It is a **dedicated command** for retrieving a line
+by number. Brackets (`[ ]`) do not work where a variable is expected.
 
-But please note that this is *not* a general syntax. It is a specific command. Hence, square brackets `[ ]` will not work in an expression where a variable is expected.
 
- It is also possible to count the number of lines:
+ To count the number of lines in a variable:
 
 <pre>
 <strong><:count</strong> <em>variable</em><strong>></strong>
 </pre>
 
 
-#### Unwrapping prefix and suffix in data variables
+#### Unwrapping Prefix and Suffix in Data Variables
+Temac can unwrap a data variable by removing a specified prefix and/or suffix, effectively
+revealing the content inside:
 <pre>
 <strong><:unwrap</strong> <em>variable</em> <em>prefix</em> <em>suffix</em><strong>></strong>
 </pre>
 
-
-For a data variable it is also possible to remove a specified prefix and/or suffix from its content, effectively unwrapping the inner value.
-
+##### Example:
 <pre>
 <:file=>index.html
 <:name=:><:unwrap file "" ".html"><.>
@@ -263,31 +313,37 @@ Ext: <:=ext>    <:> will output Ext: .html
 </pre>
 
 
-#### Sandboxing to protect the global scope
+#### Sandboxing to Protect the Global Scope
+Temac variables are global by default, with the exception of macro parameters (`$`, `$1`, `$2`, ...),
+which are always local to the macro. To avoid side effects in shared variables, you can use a
+**sandbox**:
 
-As mentioned above, Temac variables are global. The obvious exception is the parameter variables `$`, `$1`, `$2`, ... which of course only work in the invoked macro.
+* Inside a sandbox, write operations to variables are local and discarded once the block ends.
 
- To help protecting the global variable scope, it is possibile to set up a *sandbox* environment:
+* Read operations inside a sandbox first check for a local variable. If none is found, the lookup
+  proceeds step by step through outer sandbox scopes, until eventually reaching the global scope
+  if necessary.
 
-* In sandboxed code, all write operations to variables are local to the sandboxed environment, and once the sandboxed block is finished, those values disappear.
+* You can define **pipes**, which are variables explicitly shared between the sandbox and the
+  outside. These can be already existing variables, or new ones to be created.
 
-* Read operations in a sandbox environment are primarily local, but if no local variable exists with that name, the scope is increased to the outside of the sandbox.
-
-* When the sandbox is initialized, it is possible to define specific variables to act as *pipes*. These can be already existing variables, or new ones which will be created. Writing to them from the sandboxed environment is possible, and their values will stay also when the sandboxed block finishes.
-
-* Additionaly, it is possible to define a 'faked' file name for the sandboxed environment, which will set local values for `$FileIn`, `$FileOut` and `$FileName`. The intended usage for this is when a file is included, and it shall believe it was ran directly.
+* You can also set a simulated filename for the sandboxed block, which will set local values for
+  `$FileIn`, `$FileOut` and `$FileName`. This is useful when a file is included but shall
+  believe it was ran directly.
 
 * Sandboxes can be nested.
 
+##### Syntax:
 <pre>
-<strong><:sandbox</strong> <em>[filename]</em> <em>[</em><strong>%</strong><em>pipe] ...</em><strong>></strong>
+<strong><:sandbox</strong> <em>[filename]</em> <em>[</em><strong>%</strong><em>pipe1]</em> <em>[</em><strong>%</strong><em>pipe2]</em> ...<strong>></strong>
   <em>put your sandboxed
   code here</em>
 <strong><.></strong>
 </pre>
 
-The sandbox command can be used without parameters, or with a filename and/or with one or more pipe variables. The names of the pipe variables are preceded with a `%` sign before each of them. (The % symbol resembles two pipes on each side of a wall.)
+The `%` symbol before each pipe variable hints at “pipes through a wall”.
 
+##### Example:
 <pre>
 <:a=>alpha
 <:b=>beta
@@ -303,15 +359,24 @@ The sandbox command can be used without parameters, or with a filename and/or wi
 </pre>
 
 
-### Counting, comparing and looping
-#### Increment and decrement operators
+### Counting, Comparing, and Looping
+#### Increment and Decrement Operators
+Temac doesn’t support general arithmetic, but it can increment or decrement variables by one:
 <pre>
 <strong><:</strong><em>variable</em><strong>++></strong>
 <strong><:</strong><em>variable</em><strong>--></strong>
 </pre>
-Although Temac does not have mathematical functions, it can count up and down one step at a time. With these commands, *variable* is incresed or decreased by one, respectively. If *variable* cannot be converted to an integer, the start value is assumed to be 0 (and hence the resulting value will be 1 or -1).
+If the variable cannot be interpreted as an integer, it is assumed to start at 0. For example,
+`++` will then set it to 1.
 
-This operation is internally done in three steps: *1)* read the old value, *2)* count up or down, and *3)* store the new value. Because of this, it is possible to use this operation on a variable defined outside of a sandbox scope. However, the new value will be stored in a new variable in the sandboxed environment.
+This operation consists of three internal steps:
+1. Read the current value
+2. Perform the increment or decrement
+3. Store the new value
+
+Because of this, the operation is allowed even on variables defined outside a sandbox.
+However, the new value will be stored in a new local variable within the sandboxed environment,
+as the following example demonstrates:
 
 <pre>
 <:i=>1
@@ -322,23 +387,38 @@ This operation is internally done in three steps: *1)* read the old value, *2)* 
 i = <:=i>       <:> will output i = 1
 </pre>
 
-#### Comparing with if – else
+#### Comparing with `if` – `else`
+Temac supports conditional branching using `if` and `else`:
 <pre>
-<strong><:if</strong> <em>variable1 comparition variable2</em><strong>></strong>        <strong><:if</strong> <em>variable1 comparition variable2</em><strong>></strong>
-  <em>code to run if the                           <em>code to run if the
-  comparition is true</em>                          comparition is true</em>
-<strong><:else></strong>                                      <strong><.if></strong>
+<strong><:if</strong> <em>variable1 comparison variable2</em><strong>></strong>
   <em>code to run if the
-  comparition is false</em>
+  comparison is true</em>
+<strong><:else></strong>
+  <em>code to run if the
+  comparison is false</em>
 <strong><.if></strong>
 </pre>
 
-The **if** command can be used with or without **else**. Valid comparition operators are `==`, `!=`, `>=`, `<=`, `>` and `<`. If both *variable1* and *variable2* are integers, the comparition is numeric. Otherwise, it is a string comparition.
+Or without `else`:
+<pre>
+<strong><:if</strong> <em>variable1 comparison variable2</em><strong>></strong>
+  <em>code to run if the
+  comparison is true</em>
+<strong><.if></strong>
+</pre>
 
-Since Temac stores all data variables as strings, it tries to convert the strings to integers prior to the comparition. Thus, `"007" == "7"` is **true**, as both of these strings will be converted to numeric 7, and compared as numbers. If this behaviour is not desired, using **switch – case** could be a remedy.
+Valid comparison operators: `==`, `!=`, `>=`, `<=`, `>`, `<`
 
-#### Comparing with switch – case – default
-The **switch–case**-construction works as a number of **if** operations checked at once. (But the comparitions are always done as string comparitions, so 007 will not match 7.)
+If both variables can be interpreted as integers, the comparison is numeric. Otherwise,
+it’s a string comparison.
+
+Since all data in Temac is stored as strings, both operands are converted to numbers if possible.
+For example, `"007" == "7"` is **true**, because both are interpreted as numeric  7.
+If this behaviour is not desired, `switch–case` can be used instead.
+
+#### Comparing with `switch` – `case` – `default`
+The `switch` construct works as a number of `if` statements checked at once.
+But the comparisons are always done as **string comparisons**, so `"007"` will not match `"7"`.
 
 <pre>
 <strong><:switch</strong> <em>variable_to_test</em><strong>></strong>
@@ -356,23 +436,24 @@ The **switch–case**-construction works as a number of **if** operations checke
 <strong><.switch></strong>
 </pre>
 
-There must be at least one `<:case ...>` instruction, but `<:default>` is optional.
+At least one `<:case ...>` is required. `<:default>` is optional.
 
-Compared to other languages, Temac has some special features when it comes to **case**:
+Temac offers several extended features in its `case` handling:
 
-* Temac does not require the test case values to be constants, they can be variables.
+* Case values can be either constants or variables
 
-* Each case instruction accepts multiple test case values.
+* Multiple values can be listed in a single `case`
 
-* The same test case value can appear in many case instuctions. In such a situation, they will be executed in the order they are written.
+* Duplicate values across `case` blocks are allowed – all matching blocks are executed in order
 
+##### Example:
 <pre>
 <:January=>01
 <:switch $MM>
   <:case January>
     First month of the year.
   <:case 01 02 03>
-    First quarter if the year.
+    First quarter of the year.
   <:case 01 02 03 04 05 06>
     First half of the year.
   <:default>
@@ -382,33 +463,38 @@ Compared to other languages, Temac has some special features when it comes to **
 
 
 
-#### The while loop
+#### The `while` loop
+A `while` loop repeats as long as a condition is true:
 <pre>
-<strong><:while</strong> <em>variable1 comparition variable2</em><strong>></strong>
+<strong><:while</strong> <em>variable1 comparison variable2</em><strong>></strong>
   <em>code to repeat as long as
-  the comparition is true</em>
+  the comparison is true</em>
 <strong><.while></strong>
 </pre>
 
-The comparition works exactly as in the `<:if ... >` command described above, with `==`, `!=`, `>=`, `<=`, `>` and `<` as valid comparition operators. 
+The comparison rules are the same as for `if`([see above](#comparing-with-if-else)). 
 
-As a protection against infinite loops, this command will break (with an error message) after too many turns. The default limit is 1000 iterations, but it can be changed with command line parameter **-whilemax** described earlier.
+Temac enforces a maximum number of iterations for `while` loops and stops with an error if
+this limit is exceeded. By default, the limit is 1000. You can change it using the `-whilemax`
+command-line option.
 
+### File System Access
 
-### Accessing the file system
-
-#### Directory listing
-
+#### Directory Listing
+To retrieve a list of files matching a specific pattern, use:
 <pre>
 <strong><:getfiles</strong> <em>pattern [directory]</em><strong>></strong>
 </pre>
 
-This command returns filenames for files that match the *pattern* criteria (e.g. `"*.txt"`), in the *directory* given, or in the current working directory if no directory is specified.
+This command returns filenames that match the given *pattern* (e.g. `"*.txt"`), either
+in the specified *directory* or in the current working directory if none is provided.
 
-The filenames are given one on each line, and can easily be managed with <code>‹:count <em>filelist</em>></code> and <code><:=<em>filelist</em>[<em>number</em>]></code> described above. (Remember that *number* is 1-based.)
+The filenames are listed one per line, and can be processed using
+<code><:count <em>filelist</em>></code> and <code><:=<em>filelist</em>[<em>number</em>]></code> as
+described earlier. (Remember that line numbers are 1-based.)
 
-#### Inclusion of files
-
+#### Inclusion of Files
+To include content from external files, Temac provides the following commands:
 <pre>
 <strong><:include</strong> <em>filename</em><strong>></strong>
 <strong><:include-text2html</strong> <em>filename</em><strong>></strong>
@@ -416,16 +502,24 @@ The filenames are given one on each line, and can easily be managed with <code>�
 <strong><:include-bin2base64</strong> <em>filename</em><strong>></strong>
 </pre>
 
-* **include** reads the file as it is, and interprets it as a Temac text file. Use this to include Temac code or HTML.
+* `include`<br>
+  Reads the file as-is and interprets it as Temac code. Use this to include Temac scripts or
+  HTML.
 
-* **include-text2html** translates the characters `<`, `>` and `&` to their HTML entity codes (hence the '2html' part of the suffix in the command name). This can be used to show plain text in HTML, including source codes.
+* `include-text2html`<br>
+  Converts the characters `<`, `>` and `&` into their HTML entity codes, making it safe
+  to show plain text (such as source code) inside HTML.
 
-* **include-defs2html** reads a 'manuscript' text file with variable definitions, using the *definition syntax* described above. As the '2html' suffix indicates, it also translates the characters `<`, `>` and `&` to HTML entity codes. Use this to utilize the benefits of the definition syntax.
+* `include-defs2html`<br>
+  Reads a “manuscript” text file with variable definitions written in *definition syntax*
+  described earlier. It also escapes HTML-sensitive characters (i.e., `<`, `>`, `&`).
 
-* **include-bin2base64** includes a binary file as a base64 encoded text. Use this to create base64-encoded data URIs.
+* `include-bin2base64`<br>
+  Includes a binary file as Base64-encoded text. This is useful for creating Base64-encoded
+  data URIs.
 
-#### Directing the output
-
+#### Directing the Output
+To send part of the output to a different file, use the `output` command.
 <pre>
 <em>this goes to the default output file</em>
 <strong><:output</strong> <em>filename</em><strong>></strong>
@@ -436,27 +530,39 @@ The filenames are given one on each line, and can easily be managed with <code>�
 <em>this goes to the default output file too</em>
 </pre>
 
-Use this command to direct the output to a non-default output file. The given *filename* must satisfy the pattern for output files (which can be set on the command line).
+The specified *filename* must match the allowed output pattern (which can be set via command-line).
 
-If Temac detects that is is about to create an almost empty output file (a file with only whitespace from leading blanks, and maybe some line breaks), it ignores writing to it. If there already exist an older file with that name, a warning message is shown. This mechanism also applies to the default or 'main' output file.
+If Temac detects that it is about to create an almost empty output file (a file with only whitespace
+from leading blanks, and maybe some line breaks), it ignores writing to it. If an older file already
+exists with that name, a warning will be shown. This mechanism also applies to the default or main
+output file.
 
-Speaking of output files, Temac won't write to a file it already has read. This prevents accidental destruction of source files. (An error message appears if you try.)
+Temac also prevents writing to any file it has already read, in order to avoid accidental
+overwriting of input. This will result in an error.
 
+### Special Commands
 
-### Special commands
+#### Context-Aware Strings
 
-#### Context-aware strings
-
-This is a special feature primarily intended for HTML.
+The `context-begin` and `context-end` commands allow you to insert **tentative output** – content
+that may be automatically removed if it turns out to be unnecessary.
 
 <pre>
 <strong><:context-begin</strong> <em>text [name]</em><strong>></strong>
 <strong><:context-end</strong> <em>text [name]</em><strong>></strong>
 </pre>
 
-Each of these commands inserts *text* in the output stream, but only *tentative*. If a **context-begin** text and a **context-end** text ends up one after the other (in that order), they both will disappear. The *name* parameter can be set (to an arbitrary string constant) to prevent unmaching pairs, which reduces the risk of difficult-to-find bugs.
+Each of these commands writes the specified text to the output, but tentatively. If a `context-begin`
+is immediately followed by a matching `context-end`, both are suppressed, and no output is produced.
 
-The benefit of these commands are best explained with an example:
+The optional *name* acts as a label to ensure that only matching pairs interact with each other. This
+reduces the risk of unintended removal in more complex templates.
+
+This feature was designed specifically for generating HTML, where certain structural tags (like `<p>`)
+may be needed in some cases but not others. Using context-aware strings helps avoid redundant or empty
+markup.
+
+##### Example:
 
 <pre>
 <:> === article.temac ===
@@ -481,32 +587,69 @@ Maecenas lobortis, sapien posuere malesuada cursus, ante massa vestibulum
 lacus, ac ornare metus magna id sem. Morbi eget egestas sapien.
 </pre>
 
-If this example had been written without *context-begin* and *context-end*, there had been an empty set of <code>&lt;p>&lt;/p></code> right before the first heading.
+Without `context-begin` and `context-end`, the first paragraph in the output would
+start with an unnecessary empty `<p></p>` before the heading.
 
+
+
+## Temac Project Files
+A Temac project file (`.temacproj`) acts as a minimal scripting container, similar to
+a batch script. It is especially useful in environments where operating system–level
+scripts are not permitted.
+
+A project file can contain only:
+ * Comments (lines beginning with `#`)
+ * Printed messages (lines beginning with `echo`)
+ * Temac command lines
+ * Calls to other Temac project files
+
+When processing a project file, Temac temporarily changes the current working directory
+to the location of the `.temacproj` file, and restores the original directory afterwards.
+If run with the `-verbose` option, these directory changes are clearly displayed.
+
+Execution will stop if any included Temac command results in an error. A final result message
+indicates whether the processing was successful or not.
+
+<pre>
+# === example.temacproj ===
+# Lines beginning with '#' are comments, and empty lines are ignored.
+
+echo Compiling the example project
+
+# Compile the main page:
+temac -f -s mainpage.temac
+
+# Load and execute the helpfiles project:
+temac help\helpfiles.temacproj
+</pre>
 
 
 ## Troubleshooting
 
-### Unwanted empty lines
+### Unwanted Empty Lines
 
-Run Temac with parameter `-debug-newlines` to get an idea of why empty lines appear. Try putting a start
-of comment command (`<:>` in Temac syntax, and `#` in definition syntax) in the source code where the empty line was generated.
-
-
-### Which files are actually read and written by Temac?
-
-Run Temac with parameter `-files` to get a summary of read and written files.
+Run Temac with the `-debug-newlines` option to get an idea of why empty lines appear.
+Try inserting a comment marker (`<:>` in Temac syntax or `#` in definition syntax) at the
+position where the unwanted line was generated.
 
 
-### How can I find out in which of my included definition files a variable was not found?
+### Which Files Are Actually Read and Written by Temac?
 
-Run Temac with parameter `-stop`, and possibly `-files`. This will stop compilation at the first error, and print a variable dump which probalby will reveal the details you need.
+Run Temac with the `-files` option to get a summary of all input and output files.
 
 
-### I have another problem
+### How Can I Find Out in Which Definition File a Variable Was Not Found?
 
-You can try to run Temac with parameter `-tokens`, and make sure that Temac understands all your commands.
+Run Temac with the `-stop` option (and optionally `-files`). This will stop compilation
+at the first error and print a variable dump, which probably reveals the details you need.
 
-Another trick is to put a <code><:$err=><em>something</em></code> at a strategical position, and then run Temac with parameter `-stop`. This will let you see all of Temac inner thoughts at that place.
 
+### I Have Another Problem
+
+Run Temac with the `-tokens` option to check that it correctly interprets your commands.
+
+Another useful trick is to insert `<:$err=>something` at the point where you want to
+inspect the program state. When used together with the `-stop` option, this lets you
+examine the values of your Temac variables at that position – including variables at
+different sandbox levels – similar to placing a breakpoint during debugging.
 

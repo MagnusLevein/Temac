@@ -29,13 +29,6 @@ class OutputDataBlock : DataBlock
 {
     private string _filename;
 
-    private static List<string> _nontouchedFiles = new List<string>();
-
-    public static bool HasWrittenAnything { get; private set; } = false;
-
-    public static IReadOnlyList<string> NontouchedFiles => _nontouchedFiles;
-
-
     public OutputDataBlock(string filename)
         : base("output file " + filename)
     {
@@ -81,83 +74,89 @@ class OutputDataBlock : DataBlock
             // No data. Do not touch output file, but if it do exists, issue a warning.
             if (File.Exists(_filename))
             {
-                _nontouchedFiles.Add(_filename);
+                Compiler.Environment.TrackNonTouchedFile(_filename);
             }
             return base.Close();
         }
 
-        CompilerEnvironment.Instance.TrackWrittenFile(_filename);
-
-        using (var sw = new StreamWriter(_filename))
+        try
         {
-            HasWrittenAnything = true;
-            isFirstColumn = true;
-            for(int i=0; i < _tokens.Count; i++)
+            using (var sw = new StreamWriter(_filename))
             {
-                Token token = _tokens[i];
-                Token? nextToken = i+1 < _tokens.Count ? _tokens[i + 1] : null;
+                Compiler.Environment.TrackWrittenFile(_filename);
 
-                if (token is CodeToken)
+                isFirstColumn = true;
+                for (int i = 0; i < _tokens.Count; i++)
                 {
-                    ErrorHandler.Instance.Error("Unprocessed Temac code in output stream. Ignored.");
-                    continue;
-                }
-                dataTokens += token is DataToken ? 1 : 0;
+                    Token token = _tokens[i];
+                    Token? nextToken = i + 1 < _tokens.Count ? _tokens[i + 1] : null;
 
-                // Leading spaces separated from its original context is ignored
-                if (token is WhitespaceToken && Token.IsSameLine(token, nextToken) == false)
-                    continue;
-
-                // Leading spaces followed by non-explicit end of line token from the same line are also ignored (both of them)
-                if (token is WhitespaceToken && nextToken is EndOfLineToken eolt && eolt.Kind != EndOfLineKind.Explicit && Token.IsSameLine(token, nextToken) == true)
-                {
-                    i++;
-                    continue;
-                }
-
-                // ’Leading spaces’ which actually aren't at the beginning of a line are also ignored
-                if (token is WhitespaceToken && !isFirstColumn)
-                    continue;
-
-                if (token is WhitespaceToken || token is DataToken)
-                {
-                    linebuf.Append(token.ToString());
-                    isFirstColumn = false;
-                    latestDataOrWhitespaceToken = token;
-                    continue;
-                }
-
-                if (token is EndOfLineToken eolToken)
-                {
-                    if (eolToken.Kind == EndOfLineKind.Hidden)
+                    if (token is CodeToken)
                     {
-                        sw.Write(linebuf.ToString());
+                        ErrorHandler.Instance.Error("Unprocessed Temac code in output stream. Ignored.");
+                        continue;
                     }
-                    else if (eolToken.Kind == EndOfLineKind.Explicit || (dataTokens > 0))
+                    dataTokens += token is DataToken ? 1 : 0;
+
+                    // Leading spaces separated from its original context is ignored
+                    if (token is WhitespaceToken && Token.IsSameLine(token, nextToken) == false)
+                        continue;
+
+                    // Leading spaces followed by non-explicit end of line token from the same line are also ignored (both of them)
+                    if (token is WhitespaceToken && nextToken is EndOfLineToken eolt && eolt.Kind != EndOfLineKind.Explicit && Token.IsSameLine(token, nextToken) == true)
                     {
-                        if (CompilerEnvironment.Instance.DebugNewlines)
+                        i++;
+                        continue;
+                    }
+
+                    // ’Leading spaces’ which actually aren't at the beginning of a line are also ignored
+                    if (token is WhitespaceToken && !isFirstColumn)
+                        continue;
+
+                    if (token is WhitespaceToken || token is DataToken)
+                    {
+                        linebuf.Append(token.ToString());
+                        isFirstColumn = false;
+                        latestDataOrWhitespaceToken = token;
+                        continue;
+                    }
+
+                    if (token is EndOfLineToken eolToken)
+                    {
+                        if (eolToken.Kind == EndOfLineKind.Hidden)
                         {
-                            linebuf.Append(eolToken.ToDebug());
-                        }
-                        sw.WriteLine(linebuf.ToString());
-                        isFirstColumn = true;
-                    }
-                    else
-                    {
-                        if (dataTokens > 0)
                             sw.Write(linebuf.ToString());
+                        }
+                        else if (eolToken.Kind == EndOfLineKind.Explicit || (dataTokens > 0))
+                        {
+                            if (Compiler.Environment.DebugNewlines)
+                            {
+                                linebuf.Append(eolToken.ToDebug());
+                            }
+                            sw.WriteLine(linebuf.ToString());
+                            isFirstColumn = true;
+                        }
+                        else
+                        {
+                            if (dataTokens > 0)
+                                sw.Write(linebuf.ToString());
 
-                        // If not: no data tokens, and no explicit newline. Skip this line.
+                            // If not: no data tokens, and no explicit newline. Skip this line.
+                        }
+                        linebuf.Clear();
+                        dataTokens = 0;
+                        continue;
                     }
-                    linebuf.Clear();
-                    dataTokens = 0;
-                    continue;
+                    throw new TemacInternalException("Unhandled token variant.");
                 }
-                throw new TemacInternalException("Unhandled token variant.");
-            }
 
-            if (linebuf.Length > 0)
-                sw.WriteLine(linebuf.ToString());
+                if (linebuf.Length > 0)
+                    sw.WriteLine(linebuf.ToString());
+            }
+        }
+        catch (IOException e)
+        {
+            ErrorHandler.Instance.Error(e.Message);
         }
 
         return base.Close();

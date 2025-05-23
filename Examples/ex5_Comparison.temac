@@ -1,5 +1,5 @@
-﻿<:> This example shows that ’if’ comparitions are numeric whenever possible,
-<:> but ’switch/case’ matching always are string comparitions.
+﻿<:> This example shows that ’if’ comparisons are numeric whenever possible,
+<:> but ’switch/case’ matching always are string comparisons.
 <:compare:>
   <p>
   <:=$1> == <:=$2>
@@ -20,7 +20,7 @@
 <.>
 <!DOCTYPE html>
 <html>
-<head><title>Comparition</title></head>
+<head><title>Comparison</title></head>
 <body>
   <:=compare 5 5>
   <:=compare 5 "5">

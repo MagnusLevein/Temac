@@ -13,13 +13,13 @@
 <:>  
 <:>    temac ReadMe.temac
 <:>
-<:>  (There will be no 'readme.html', as all output
-<:>  from this files goes to other files.)
+<:>  (There will be no 'readme.html', as all output from
+<:>  this file is written to other files.)
 <:>
 <:>  
-<:>  Please also check out the different command line
-<:>  parameters that are available, as most of them
-<:>  are intended for trouble-shooting:
+<:>  Please also check out the different command-line
+<:>  parameters that are available, as most of them are
+<:>  intended for troubleshooting:
 <:>
 <:>    temac -help
 <:>
@@ -29,6 +29,9 @@
 <:>
 <:files=><:getfiles "ex*.temac">
 <:numfiles=><:count files>
+<:if numfiles==0>
+<:$err=>Did not find any ex*.temac files in current directory.
+<.if>
 <:i=>1
 <:while i <= numfiles>
   <:currentFile=><:=files[i]>

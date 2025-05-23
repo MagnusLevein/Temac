@@ -29,6 +29,11 @@ class ErrorHandler
 {
     static private ErrorHandler _instance = new ErrorHandler();
 
+    static public void Reinitialize()
+    {
+        _instance = new ErrorHandler();
+    }
+
     static public ErrorHandler Instance => _instance;
 
     private int tokenizationErr = 0;
@@ -70,11 +75,17 @@ class ErrorHandler
         HighlightFirstError();
         Console.Error.WriteLine(SuffixWithBlanks(Location.GetLocationString(location != null ? location : Interpreter.SetLocation)) + message);
 
-        if (CompilerEnvironment.Instance.TraceError)
+        if (Compiler.HasCompilerEnvironment && Compiler.Environment.TraceError)
         {
             Console.Error.WriteLine("\nProcessing stopped on first error, since parameter -stop was given.\n\nRecursion trace:");
             Interpreter.StopAndTrace = true;
         }
+    }
+
+    public void Error(TemacArgumentException temacArgumentException)
+    {
+        HighlightFirstError();
+        Console.Error.WriteLine(SuffixWithBlanks(Location.GetLocationString(temacArgumentException.Location)) + "Argument error: " + temacArgumentException.Message);
     }
 
     private string SuffixWithBlanks(string text)

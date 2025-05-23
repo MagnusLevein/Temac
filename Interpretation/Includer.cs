@@ -31,7 +31,7 @@ static class Includer
     /// <summary>
     /// Loads a text file with the given tokenizer to a new DataBlock. Returns the DataBlock opened for reading.
     /// </summary>
-    static public DataBlock IncludeFile(string fileName, Tokenizer tokenizer)
+    static public DataBlock IncludeFile(string fileName, Tokenizer tokenizer, Location? location)
     {
         fileName = fileName.Trim(); // Bug correction v. 1.1.2
         if (String.IsNullOrEmpty(fileName))
@@ -43,18 +43,18 @@ static class Includer
         try
         {
             var inputDataBlock = new DataBlock("file " + fileName);
-            CompilerEnvironment.Instance.TrackReadFile(fileName);
+            Compiler.Environment.TrackReadFile(fileName);
             tokenizer.Tokenize(fileName, inputDataBlock.OpenForWriting(append: false));
             inputDataBlock.Close(makeReadOnly: true);
 
-            if (CompilerEnvironment.Instance.DumpTokens)
+            if (Compiler.Environment.DumpTokens)
                 inputDataBlock.Dump(tokenizer.PublicName);
 
             return inputDataBlock.OpenForReading();
         }
-        catch (FileNotFoundException e)
+        catch (IOException e)
         {
-            ErrorHandler.Instance.Error(e.Message);
+            ErrorHandler.Instance.Error(e.Message, location);
             return DataBlock.SystemBlockNULL;
         }
     }

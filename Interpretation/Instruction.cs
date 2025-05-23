@@ -22,8 +22,8 @@ using System.Threading.Tasks;
 
 namespace Temac.Interpretation;
 
-// !! DO NOTE the relationship between the enum values of Instruction, StructuralClass and ComparitionOperator: !!
-// !!           Instruction = StructuralClass | instruction_number | ComparitionOperator                        !!
+// !! DO NOTE the relationship between the enum values of Instruction, StructuralClass and ComparisonOperator: !!
+// !!           Instruction = StructuralClass | instruction_number | ComparisonOperator                        !!
 // !!             bitmask:        0xf0000            0x0fff0               0x0000f                              !!
 
 public enum StructuralClass : UInt32
@@ -45,7 +45,7 @@ public enum StructuralClass : UInt32
     EndWhile        = 0xe0000
 }
 
-enum ComparitionOperator : Byte
+enum ComparisonOperator : Byte
 {
     None            = 0x0,
     Equal           = 0x1,
@@ -58,7 +58,7 @@ enum ComparitionOperator : Byte
 
 enum Instruction : UInt32
 {
-    ComparitionOperator_Mask= 0x0000f,
+    ComparisonOperator_Mask= 0x0000f,
 
     Increment               = 0x10010,
     Decrement               = 0x10020,
@@ -115,7 +115,7 @@ static class InstructionExtensionMethods
 {
     static public StructuralClass GetStructuralClass(this Instruction instruction) => (StructuralClass)(0xf0000 & (UInt32)instruction);
 
-    static public ComparitionOperator GetComparitionOperator(this Instruction instruction) => (ComparitionOperator)(0xf & (UInt32)instruction);
+    static public ComparisonOperator GetComparisonOperator(this Instruction instruction) => (ComparisonOperator)(0xf & (UInt32)instruction);
 
     static public bool SiblingRequired(this StructuralClass s) => (s == StructuralClass.Case ||
                                                                    s == StructuralClass.Default || 

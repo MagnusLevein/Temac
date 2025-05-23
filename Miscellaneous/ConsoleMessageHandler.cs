@@ -17,6 +17,11 @@ internal class ConsoleMessageHandler
 {
     static private ConsoleMessageHandler _instance = new ConsoleMessageHandler();
 
+    static public void Reinitialize()
+    {
+        _instance = new ConsoleMessageHandler();
+    }
+
     static public ConsoleMessageHandler Instance => _instance;
 
     public int ScreenColumns { get; private set; }

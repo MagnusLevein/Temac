@@ -41,6 +41,13 @@ public class DataBlock
 
     static public DataBlock SystemBlockSTATUS = new StatusDataBlock();
 
+    static public void Reinitialize()
+    {
+        SystemBlockNULL = new NullDataBlock();
+        SystemBlockERR = new ErrDataBlock();
+        SystemBlockSTATUS = new StatusDataBlock();
+    }
+
     public string Name { get; protected set; }
 
     public bool IsReadonly { get; private set; } = false;

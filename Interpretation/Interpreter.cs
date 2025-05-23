@@ -41,6 +41,13 @@ static class Interpreter
 
     public static Location? SetLocation => _locationStack.Count > 0 ? _locationStack.Peek() : null;
 
+    static public void Reinitialize()
+    {
+        _locationStack = new Stack<Location>();
+        StopAndTrace = false;
+        VariableDump = null;
+    }
+
     /// <summary>
     /// Temac main interpreter, recursive.
     /// </summary>
@@ -154,7 +161,7 @@ static class Interpreter
                         if (ctoken.Parameters.Length != 1)
                             throw new WrongNumberOfArgumentsInternalException(ctoken);
 
-                        DataBlock includedDb = Includer.IncludeFile(ctoken.Parameters[0].ReadAsString(scope), Includer.GetTokenizer(instruction));
+                        DataBlock includedDb = Includer.IncludeFile(ctoken.Parameters[0].ReadAsString(scope), Includer.GetTokenizer(instruction), null);
                         Interpret(scope, includedDb, dest, null);
                         includedDb.Close();
                         break;
@@ -268,7 +275,7 @@ static class Interpreter
                                 throw new WrongNumberOfArgumentsInternalException(ctoken);
 
                             string useFileName = ctoken.Parameters[0].ReadAsString(scope);
-                            string scopeOutputFilename = CompilerEnvironment.Instance.GenerateOutputFileName(useFileName, out string useNakedName);
+                            string scopeOutputFilename = Compiler.Environment.GenerateOutputFileName(useFileName, out string useNakedName);
                             sandboxScope = sandboxScope.GetNewInOutFileScope(useFileName, scopeOutputFilename, useNakedName);
                         }
 
@@ -290,10 +297,10 @@ static class Interpreter
 
                         string outFile = ctoken.Parameters[0].ReadAsString(scope);
                         DataBlock customOutput = DataBlock.SystemBlockNULL;
-                        if (CompilerEnvironment.Instance.IsUnsecureFileName(outFile))
-                            ErrorHandler.Instance.Error($"Output file name \'{outFile}\' does not match the output pattern (\'{CompilerEnvironment.Instance.OutputFilePattern}\').", ctoken.Location);
+                        if (!Compiler.Environment.MakeSecureFileName(outFile, out string secureFilename))
+                            ErrorHandler.Instance.Error($"Output file name \'{outFile}\' does not match the output pattern, consider '{secureFilename}' instead. It would match the pattern \'{Compiler.Environment.OutputFilePattern}\'.", ctoken.Location);
                         else
-                            customOutput = new OutputDataBlock(outFile).OpenForWriting(append: false);
+                            customOutput = new OutputDataBlock(secureFilename).OpenForWriting(append: false);
 
                         Interpret(scope, src, customOutput, ctoken.NextStructuralSibling);
                         customOutput.Close();
@@ -311,7 +318,7 @@ static class Interpreter
                         if (ctoken.Parameters.Length != 2)
                             throw new WrongNumberOfArgumentsInternalException(ctoken);
 
-                        bool isTrue = Comparator.Comparition((ComparitionOperator)(instruction & Instruction.ComparitionOperator_Mask), ctoken.Parameters[0].ReadAsString(scope), ctoken.Parameters[1].ReadAsString(scope));
+                        bool isTrue = Comparator.Comparison((ComparisonOperator)(instruction & Instruction.ComparisonOperator_Mask), ctoken.Parameters[0].ReadAsString(scope), ctoken.Parameters[1].ReadAsString(scope));
                         if (isTrue)
                             Interpret(scope, src, dest, ctoken.NextStructuralSibling);                  // call if-true code
                         else
@@ -396,12 +403,12 @@ static class Interpreter
 
                         int whileCounter = 0;
                         src.StoreReadPointer(out int storedCurrentToken);
-                        while (!Stop && Comparator.Comparition((ComparitionOperator)(instruction & Instruction.ComparitionOperator_Mask), ctoken.Parameters[0].ReadAsString(scope), ctoken.Parameters[1].ReadAsString(scope)))
+                        while (!Stop && Comparator.Comparison((ComparisonOperator)(instruction & Instruction.ComparisonOperator_Mask), ctoken.Parameters[0].ReadAsString(scope), ctoken.Parameters[1].ReadAsString(scope)))
                         {
                             whileCounter++;
-                            if (whileCounter > CompilerEnvironment.Instance.WhileMax)
+                            if (whileCounter > Compiler.Environment.WhileMax)
                             {
-                                ErrorHandler.Instance.Error("While loop exceeds the max limit of " + CompilerEnvironment.Instance.WhileMax + " turns; change with command line parameter -w.");
+                                ErrorHandler.Instance.Error("While loop exceeds the max limit of " + Compiler.Environment.WhileMax + " turns; change with command line parameter -w.");
                                 break;
                             }
                             src.RestoreReadPointer(storedCurrentToken);
@@ -453,7 +460,7 @@ static class Interpreter
             dest.WriteNext(token);
     }
 
-    static private void ExpectInstruction(Token? nextToken,string expectedTokenDescription, params Instruction[] instructions)
+    static private void ExpectInstruction(Token? nextToken, string expectedTokenDescription, params Instruction[] instructions)
     {
         if (nextToken == null || !(nextToken is CodeToken cToken) || !instructions.Contains(cToken.Instruction))
             throw new ExpectedTokenNotFoundInternalException(expectedTokenDescription, nextToken);

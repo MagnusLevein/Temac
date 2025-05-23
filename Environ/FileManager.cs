@@ -30,10 +30,28 @@ internal class FileManager
 {
     private Dictionary<string, int> _readFiles, _writtenFiles;
 
+    private List<string> _nontouchedFiles;
+
+    private bool _hasWrittenAnything = false;
+
+    public IReadOnlyList<string> NontouchedFiles => _nontouchedFiles;
+
+    public bool HasWrittenAnything
+    {
+        get => _hasWrittenAnything;
+        set
+        {
+            if (value != true)
+                throw new NotSupportedException();
+            _hasWrittenAnything = true;
+        }
+    }
+
     public FileManager()
     {
         _readFiles = new Dictionary<string, int>();
         _writtenFiles = new Dictionary<string, int>();
+        _nontouchedFiles = new List<string>();
     }
 
     public void AddInputFile(string fileName)
@@ -58,6 +76,11 @@ internal class FileManager
             return;
         }
         _writtenFiles.Add(fileName, 1);
+    }
+
+    public void AddNonTouchedFile(string fileName)
+    {
+        _nontouchedFiles.Add(fileName);
     }
 
     public void DumpSummary()

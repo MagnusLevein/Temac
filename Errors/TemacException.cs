@@ -34,7 +34,12 @@ public class TemacException : Exception
 
 public class TemacArgumentException : TemacException
 {
-	public TemacArgumentException(string message) : base(message) { }
+	public Location? Location { get; private set; }
+
+	public TemacArgumentException(Location? location, string message) : base(message)
+	{
+		Location = location;
+	}
 }
 
 public class TemacVariableException : TemacException

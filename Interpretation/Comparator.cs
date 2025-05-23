@@ -24,54 +24,54 @@ using Temac.Environ;
 namespace Temac.Interpretation;
 
 /// <summary>
-/// Comparition functions used used by the interpreter.
+/// Comparison functions used used by the interpreter.
 /// </summary>
 static class Comparator
 {
     /// <summary>
-    /// Performs the comparition of ’left’ and ’right’ variables (given as strings), according to the given ’comparition’ operator.
+    /// Performs the comparison of ’left’ and ’right’ variables (given as strings), according to the given ’comparison’ operator.
     /// If both of them are interpretable as integers, they are compared as numbers. Otherways as strings.
     /// This makes  1 == "01"  being a true statement.
     /// </summary>
-    static internal bool Comparition(ComparitionOperator comparition, string left, string right)
+    static internal bool Comparison(ComparisonOperator comparison, string left, string right)
     {
         if (Int32.TryParse(left, out int leftValue) && Int32.TryParse(right, out int rightValue))
         {
-            return CompareNumbers(comparition, leftValue, rightValue);
+            return CompareNumbers(comparison, leftValue, rightValue);
         }
 
-        return CompareStrings(comparition, left, right);
+        return CompareStrings(comparison, left, right);
     }
 
-    static private bool CompareNumbers(ComparitionOperator comparition, int leftValue, int rightValue)
+    static private bool CompareNumbers(ComparisonOperator comparison, int leftValue, int rightValue)
     {
-        return CompareByOperator(comparition, leftValue - rightValue);
+        return CompareByOperator(comparison, leftValue - rightValue);
     }
 
-    static private bool CompareStrings(ComparitionOperator comparition, string leftString, string rightString)
+    static private bool CompareStrings(ComparisonOperator comparison, string leftString, string rightString)
     {
-        if (comparition == ComparitionOperator.Equal)
+        if (comparison == ComparisonOperator.Equal)
             return String.Equals(leftString, rightString, StringComparison.Ordinal);
 
-        if (comparition == ComparitionOperator.NotEqual)
+        if (comparison == ComparisonOperator.NotEqual)
             return !String.Equals(leftString, rightString, StringComparison.Ordinal);
 
-        return CompareByOperator(comparition, String.Compare(leftString, rightString, StringComparison.CurrentCulture));
+        return CompareByOperator(comparison, String.Compare(leftString, rightString, StringComparison.CurrentCulture));
     }
 
     /// <summary>
-    /// Converts a ’compareValue’ (less than 0, 0, greater than 0) to a boolean value (true or false), in accordance with the selected ’comparition’ operator.
+    /// Converts a ’compareValue’ (less than 0, 0, greater than 0) to a boolean value (true or false), in accordance with the selected ’comparison’ operator.
     /// In effect, the function is a 3 x 6 lookup table that finds the correct truthness value.
     /// </summary>
-    static private bool CompareByOperator(ComparitionOperator comparition, int compareValue)
+    static private bool CompareByOperator(ComparisonOperator comparison, int compareValue)
     {
         if (compareValue == 0)
         {
-            switch (comparition)
+            switch (comparison)
             {
-                case ComparitionOperator.Equal:
-                case ComparitionOperator.GreaterOrEqual:
-                case ComparitionOperator.LessOrEqual:
+                case ComparisonOperator.Equal:
+                case ComparisonOperator.GreaterOrEqual:
+                case ComparisonOperator.LessOrEqual:
                     return true;
                 default:
                     return false;
@@ -79,21 +79,21 @@ static class Comparator
         }
         if (compareValue < 0)
         {
-            switch (comparition)
+            switch (comparison)
             {
-                case ComparitionOperator.NotEqual:
-                case ComparitionOperator.Less:
-                case ComparitionOperator.LessOrEqual:
+                case ComparisonOperator.NotEqual:
+                case ComparisonOperator.Less:
+                case ComparisonOperator.LessOrEqual:
                     return true;
                 default:
                     return false;
             }
         }
-        switch (comparition)
+        switch (comparison)
         {
-            case ComparitionOperator.NotEqual:
-            case ComparitionOperator.Greater:
-            case ComparitionOperator.GreaterOrEqual:
+            case ComparisonOperator.NotEqual:
+            case ComparisonOperator.Greater:
+            case ComparisonOperator.GreaterOrEqual:
                 return true;
             default:
                 return false;

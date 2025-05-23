@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Temac.Errors;
+using Temac.Interpretation;
 
 // © Copyright 2022-2025 Magnus Levein.
 // This file is part of Temac, Text Manuscript Compiler.
@@ -26,92 +27,40 @@ namespace Temac.Environ;
 
 class CompilerEnvironment
 {
-    private static CompilerEnvironment _instance = new CompilerEnvironment();
-
-    public static CompilerEnvironment Instance => _instance;
-
-    private string _mainInputFile = "";
-    
-    private string _outputFilePattern = "";
+    private Arguments _arguments;
 
     private FileManager _fileManager;
 
-    /// <summary>
-    /// Is the compiler environment enough setup for run?
-    /// </summary>
-    public bool IsSetup => _mainInputFile != "";
+    public bool HasWrittenAnything => _fileManager.HasWrittenAnything;
+
+    public IReadOnlyList<string> NontouchedFiles => _fileManager.NontouchedFiles;
 
     /// <summary>
     /// Filename of main input file set from command line (required)
     /// </summary>
-    public string MainInputFile => _mainInputFile;
+    public string MainInputFile => _arguments.InputFileName;
 
     /// <summary>
     /// Pattern for construction of output file names set from command line, defaults to "@.html"
     /// </summary>
-    public string OutputFilePattern => _outputFilePattern != "" ? _outputFilePattern : "@.html";
+    public string OutputFilePattern => _arguments.OutputFilePattern != "" ? _arguments.OutputFilePattern : "@.html";
 
-    /// <summary>
-    /// Option set from command line: dump tokens after every file inclusion
-    /// </summary>
-    public bool DumpTokens { get; set; } = false;
+    public bool DumpTokens => _arguments.DumpTokens;
+    public bool DebugNewlines => _arguments.DebugNewlines;
+    public bool ListFileUsage => _arguments.ListFileUsage;
+    public bool TraceError => _arguments.TraceError;
+    public int WhileMax => _arguments.WhileMax;
+    public string CommandLineParameter => _arguments.CommandLineParameter;
 
-    /// <summary>
-    /// Option set from command line: print EOL tokens in output files (DO NOT USE IN PRODUCTION)
-    /// </summary>
-    public bool DebugNewlines { get; set; } = false;
 
-    /// <summary>
-    /// Option set from command line: list file usage summary
-    /// </summary>
-    public bool ListFileUsage { get; set; } = false;
-
-    /// <summary>
-    /// Stop on first error, and print trace
-    /// </summary>
-    public bool TraceError { get; set; } = false;
-
-    /// <summary>
-    /// Option set from command line: maximum number of while turns in loop (defaults to 1000)
-    /// </summary>
-    public int WhileMax { get; set; } = 1000;
-
-    
-    public string CommandLineParameter { get; set; } = "";
-
-    /// <summary>
-    /// Set MainInputFile, which can only be done once.
-    /// </summary>
-    /// <returns>true if set, false if already set</returns>
-    public bool SetMainInputFile(string filename)
+    public CompilerEnvironment(Arguments arguments)
     {
-        if (_mainInputFile != "")
-            return false;
-        if (Path.GetFileName(filename) == "")
-            throw new TemacArgumentException("Bad input file name.");
-        _mainInputFile = filename;
-        return true;
-    }
-
-    /// <summary>
-    /// Set OutputFilePattern, which can only be done once.
-    /// </summary>
-    /// <returns>true if set, false if already done</returns>
-    public bool SetOutputFilePattern(string pattern)
-    {
-        if (_outputFilePattern != "")
-            return false;
-        _outputFilePattern = pattern;
-        return true;
-    }
-
-    private CompilerEnvironment()
-    {
+        _arguments = arguments;
         _fileManager = new FileManager();
     }
 
     /// <summary>
-    /// Typical OutputFilePattern values are like "@.html", "subdir", "subdir/", "subdir/@.html"
+    /// Typical OutputFilePattern values are like "@.html", "filename.ext", "subdir", "subdir/", "subdir/@.html"
     /// </summary>
     /// <exception cref="TemacException"></exception>
     public string GenerateOutputFileName(string inputFileName, out string nakedName)
@@ -123,7 +72,12 @@ class CompilerEnvironment
         if (OutputFilePattern.IndexOf('@') >= 0)
             generatedName = OutputFilePattern.Replace("@", nakedName);
         else
-            generatedName = Path.Join(OutputFilePattern, Path.GetFileName(inputFileName));
+        {
+            if (Path.GetExtension(OutputFilePattern).Length > 0)
+                generatedName = OutputFilePattern;
+            else
+                generatedName = Path.Join(OutputFilePattern, Path.GetFileName(inputFileName));
+        }
 
         if (Path.GetFileName(generatedName) != "")
             return generatedName;
@@ -132,19 +86,37 @@ class CompilerEnvironment
     }
 
     /// <summary>
-    /// Tests if a file name fullfills the output file pattern.
+    /// From a given proposed output filename, tries to construct a filename that fullfills the output file pattern.
     /// </summary>
-    /// <param name="outputFileName"></param>
-    /// <returns>true indicates that the pattern was not fullfilled</returns>
-    public bool IsUnsecureFileName(string outputFileName)
+    /// <param name="proposedOutputFilename">wanted filename, e.g., document.htm</param>
+    /// <param name="secureOutputFilename">when true is returned, a fullpath filename that fullfills the output file pattern</param>
+    /// <returns>false indicates that the pattern was not fullfilled, and that secureOutputFilename is a filename suggestion to consider</returns>
+    public bool MakeSecureFileName(string proposedOutputFilename, out string secureOutputFilename)
     {
-        string generated = GenerateOutputFileName(outputFileName, out string _);
-        return outputFileName != generated;
+        string generated = GenerateOutputFileName(proposedOutputFilename, out string _);
+        if (generated == proposedOutputFilename)
+        {
+            secureOutputFilename = proposedOutputFilename;
+            return true;
+        }
+        if (Path.GetFileName(generated) == proposedOutputFilename)
+        {
+            secureOutputFilename = generated;
+            return true;
+        }
+        secureOutputFilename = Path.GetFileName(generated);
+        return false;
     }
 
     public void TrackReadFile(string inputFileName) => _fileManager.AddInputFile(inputFileName);
 
-    public void TrackWrittenFile(string outputFileName) => _fileManager.AddOutputFile(outputFileName);
+    public void TrackWrittenFile(string outputFileName)
+    {
+        _fileManager.AddOutputFile(outputFileName);
+        _fileManager.HasWrittenAnything = true;
+    }
+
+    public void TrackNonTouchedFile(string filename) => _fileManager.AddNonTouchedFile(filename);
 
     public void DumpFileUsageSummary() => _fileManager.DumpSummary();
 }
